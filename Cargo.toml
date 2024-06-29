@@ -1,16 +1,43 @@
 [package]
 name = "dioxus-wallet-adapter"
 version = "0.1.0"
-authors = ["alex <aabinaei@gmail.com>"]
+authors = ["mrmizz <bigtimetapin@gmail.com>"]
 edition = "2021"
 
-# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
-
 [dependencies]
-
 dioxus = { version = "0.5", features = ["web"] }
-
-# Debug
-tracing = "0.1.40"
 dioxus-logger = "0.5.0"
-log = "0.4.21"
+gloo = { version = "0.11.0", optional = true }
+gloo-storage = { version = "0.3.0", optional = true }
+js-sys = { version = "0.3.67", optional = true }
+serde-wasm-bindgen = { version = "0.6.3", optional = true }
+solana-client-wasm = { version = "1.18", path = "../solana-playground/wasm/solana-client" }
+solana-extra-wasm = { version = "1.18", path = "../solana-playground/wasm/utils/solana-extra" }
+wasm-bindgen = { version = "0.2.91", optional = true }
+wasm-bindgen-futures = { version = "0.4.41", optional = true }
+web-time = { version = "1.0.0", optional = true }
+tracing = "0.1.40"
+serde_json = "1.0.118"
+
+
+[dependencies.web-sys]
+version = "0.3"
+optional = true
+features = [
+  'console',
+  'Clipboard',
+  'Document',
+  'HtmlElement',
+  'HtmlInputElement',
+  "IdbFactory",
+  "IdbDatabase",
+  "IdbObjectStore",
+  "IdbTransaction",
+  'MessageEvent',
+  'Navigator',
+  'Window',
+  'Worker',
+  'WorkerOptions',
+  'WorkerType',
+  'WorkerGlobalScope',
+]

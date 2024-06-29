@@ -3,7 +3,7 @@
   "main": "main.js",
   "version": "1.0.0",
   "scripts": {
-    "build": "webpack --config=./webpack.config.js --mode=production --entry ./src/main.js --output-path ./../assets/"
+    "build": "webpack --config=./webpack.config.js --mode=development --entry ./src/main.js --output-path ./../assets/"
   },
   "devDependencies": {
     "@babel/core": "^7.24.7",

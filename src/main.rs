@@ -3,6 +3,10 @@
 use dioxus::prelude::*;
 use tracing::Level;
 
+use crate::hooks::use_wallet_adapter;
+
+mod hooks;
+
 fn main() {
     // Init logger
     dioxus_logger::init(Level::INFO).expect("failed to init logger");
@@ -11,75 +15,79 @@ fn main() {
 
 #[component]
 fn App() -> Element {
+    use_wallet_adapter::use_wallet_adapter_provider();
     rsx! {
-        Nav {}
-        TwoWay {}
+        MountWalletAdapter {}
+        RenderBalance {}
+        RenderSlot {}
     }
 }
 
 #[component]
-fn Nav() -> Element {
-    rsx!(nav { id: "plsss" })
-}
-
-#[component]
-fn TwoWay() -> Element {
-    let mut count = use_signal(|| 0);
-    let eval = eval(
-        r#"
-        console.log("evall");
-        window.addEventListener("ping-me", (e) => {
-            console.log(e);
-            dioxus.send(e.detail);
-        });
-        "#,
-    );
-    spawn(async move {
-        dioxus_logger::tracing::info!("starting");
-        to_owned![eval];
-        while let Ok(msg) = eval.recv().await {
-            dioxus_logger::tracing::info!("msg: {}", msg);
-            count += 1;
-        }
+fn MountWalletAdapter() -> Element {
+    let _ = use_future(move || async move {
+        let eval = eval(
+            r#"
+                let mount = window.MountWalletAdapter;
+                console.log(mount);
+                mount();
+                return
+            "#,
+        );
+        let _ = eval.await;
     });
-    rsx! {
-        div {
-            "loop"
-        }
-    }
+    rsx!(nav {
+        id: "dioxus-wallet-adapter"
+    })
 }
 
-// #[component]
-// fn React() -> Element {
-//     // Create a future that will resolve once the javascript has been successfully executed.
-//     let future = use_resource(move || async move {
-//         // The `eval` is available in the prelude - and simply takes a block of JS.
-//         // Dioxus' eval is interesting since it allows sending messages to and from the JS code using the `await dioxus.recv()`
-//         // builtin function. This allows you to create a two-way communication channel between Rust and JS.
-//
-//         let mut eval_1 = eval(
-//             r#"
-//                 let msg = await dioxus.recv();
-//                 console.log(msg);
-//                 const rrr = window.PlsRender;
-//                 console.log(rrr);
-//                 rrr();
-//                 return
-//             "#,
-//         );
-//
-//         // Send a message to the JS code.
-//         eval_1.send("Hi from Rust!".into()).unwrap();
-//
-//         // Our line on the JS side will log the message and then return "hello world".
-//         let res = eval_1.recv().await.unwrap();
-//
-//         // This will print "Hi from JS!" and "Hi from Rust!".
-//         let _res_1 = eval_1.await;
-//
-//         res
-//     });
-//
-//     future.value().as_ref();
-//     rsx!(div {})
-// }
+#[component]
+fn RenderSlot() -> Element {
+    let slot = use_wallet_adapter::use_slot();
+    let e = match *slot.read() {
+        Some(Some(s)) => {
+            rsx! {
+                div {
+                    "slot: {s}"
+                }
+            }
+        }
+        Some(None) => {
+            rsx! {
+                div {
+                    "no slot found"
+                }
+            }
+        }
+        None => {
+            rsx! {
+                div {
+                    "waiting for slot"
+                }
+            }
+        }
+    };
+    e
+}
+
+#[component]
+fn RenderBalance() -> Element {
+    let balance = use_wallet_adapter::use_balance();
+    let e = match *balance.read() {
+        Some(bal) => {
+            rsx! {
+                div {
+                    "balance: {bal}"
+                }
+            }
+        }
+        None => {
+            rsx! {
+                div {
+                    "waiting for balance"
+                }
+            }
+        }
+    };
+    e
+}
