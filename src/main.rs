@@ -15,8 +15,7 @@ use crate::hooks::use_wallet_adapter::{
 
 mod hooks;
 
-pub const RPC_URL: &str =
-    "https://mainnet.helius-rpc.com/?api-key=1de92644-323b-4900-9041-13c02730955c";
+pub const RPC_URL: &str = "https://api.mainnet-beta.solana.com";
 
 fn main() {
     // Init logger
