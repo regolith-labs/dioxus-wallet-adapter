@@ -7,3 +7,8 @@ dx serve --hot-reload
 ```
 
 - Open the browser to http://localhost:8080
+
+To rebuild the wallet adapter:
+```
+cd wallet-adapter && npm run build
+```

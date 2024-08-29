@@ -1,16 +1,18 @@
-import React, { useMemo } from 'react';
+import React, { useMemo, useCallback } from 'react';
 import ReactDOM from 'react-dom/client';
 import { ConnectionProvider, WalletProvider, useWallet } from '@solana/wallet-adapter-react';
 import {
   WalletModalProvider,
   WalletMultiButton
 } from '@solana/wallet-adapter-react-ui';
+import { Transaction } from '@solana/web3.js';
+import * as buffer from "buffer";
+window.Buffer = buffer.Buffer;
 
-// Default styles that can be overridden by your app
 require('@solana/wallet-adapter-react-ui/styles.css');
 
 export const Wallet = () => {
-  const endpoint = "http://localhost:8899";
+  const endpoint = "https://api.mainnet-beta.solana.com";
   const wallets = useMemo(
     () => [
     ],
@@ -24,6 +26,7 @@ export const Wallet = () => {
           <WalletMultiButton />
           { /* Your app's components go here, nested within the context providers. */}
           <Dispatcher />
+          <SignTransaction />
         </WalletModalProvider>
       </WalletProvider>
     </ConnectionProvider>
@@ -40,23 +43,51 @@ window.MountWalletAdapter = MountWalletAdapter;
 function Dispatcher() {
   const { publicKey } = useWallet();
   useMemo(() => {
+    let msg;
     if (publicKey) {
-      try {
-        const event = new CustomEvent(
-          "dwa-pubkey",
-          {
-            detail: {
-              pubkey: publicKey
-            }
+      msg = publicKey.toBuffer().toJSON().data;
+    } else {
+      msg = null
+    }
+    try {
+      const event = new CustomEvent(
+        "dwa-pubkey",
+        {
+          detail: {
+            pubkey: msg
           }
-        );
-        window.dispatchEvent(
-          event
-        );
-      } catch (err) {
-        console.log(err);
-      }
+        }
+      );
+      window.dispatchEvent(
+        event
+      );
+    } catch (err) {
+      console.log(err);
     }
     return
   }, [publicKey]);
+}
+
+function SignTransaction() {
+  const { publicKey, signTransaction } = useWallet();
+  const callback = useCallback(async (msg) => {
+    try {
+      const tx = Transaction.from(
+        Buffer.from(
+          msg.b64,
+          "base64"
+        )
+      );
+      const signed = await signTransaction(
+        tx
+      );
+      return signed
+        .serialize()
+        .toString("base64");
+    } catch (err) {
+      console.log(err);
+    }
+  }, [publicKey]);
+  window.DwaTxSigner = callback;
+  return
 }
