@@ -1,8 +1,13 @@
 [package]
 name = "dioxus-wallet-adapter"
 version = "0.1.0"
-authors = ["mrmizz <bigtimetapin@gmail.com>"]
 edition = "2021"
+license = "Apache-2.0"
+homepage = "https://ore.supply"
+documentation = "https://ore.supply"
+repository = "https://github.com/regolith-labs/dioxus-wallet-adapter"
+readme = "./README.md"
+keywords = ["solana"]
 
 [dependencies]
 async-std = "1.12.0"
